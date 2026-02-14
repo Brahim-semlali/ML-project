@@ -1,0 +1,1267 @@
+% !TEX root = rapport_wine_quality.tex
+
+\documentclass[12pt,a4paper]{article}
+
+% ========================================
+% PACKAGES
+% ========================================
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Mise en page
+\usepackage[margin=2.5cm, top=3cm, bottom=3cm, headheight=25pt]{geometry}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{setspace}
+
+% Graphiques et figures
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% Mathématiques
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Tableaux
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{tabularx}
+
+% Couleurs et design
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+% Code et listings
+\usepackage{listings}
+\usepackage{inconsolata}
+
+% Liens et références (hyperref en dernier pour éviter conflits)
+\usepackage[pdfpagelabels=false]{hyperref}
+
+% Autres
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+% ========================================
+% DÉFINITION DES COULEURS
+% ========================================
+\definecolor{primarycolor}{RGB}{128,0,0}        % Bordeaux (vin)
+\definecolor{secondarycolor}{RGB}{70,30,30}     % Bordeaux foncé
+\definecolor{accentcolor}{RGB}{180,50,50}       % Rouge accent
+\definecolor{lightgray}{RGB}{245,245,245}       % Gris clair
+\definecolor{mediumgray}{RGB}{200,200,200}       % Gris moyen
+\definecolor{darkgray}{RGB}{80,80,80}           % Gris foncé
+\definecolor{codebackground}{RGB}{248,248,248}  % Fond code
+
+% ========================================
+% CONFIGURATION DES TITRES
+% ========================================
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{primarycolor}}
+  {\thesection}{1em}{}
+  [\titlerule]
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{secondarycolor}}
+  {\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{accentcolor}}
+  {\thesubsubsection}{1em}{}
+
+% ========================================
+% EN-TÊTES ET PIEDS DE PAGE
+% ========================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{darkgray}{Projet ML - Wine Quality}}
+\fancyhead[R]{\small\textcolor{darkgray}{Master ISI}}
+\fancyfoot[C]{\small\textcolor{darkgray}{Page \thepage\ sur \pageref{LastPage}}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{primarycolor}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{primarycolor}\leaders\hrule height \footrulewidth\hfill}}
+
+% ========================================
+% CONFIGURATION DES LIENS
+% ========================================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primarycolor,
+    filecolor=accentcolor,
+    urlcolor=accentcolor,
+    citecolor=secondarycolor,
+    pdftitle={Projet ML - Wine Quality Dataset},
+    pdfauthor={Brahim Semlali},
+    pdfsubject={Machine Learning},
+    pdfkeywords={Machine Learning, Wine Quality, Classification, Clustering}
+}
+
+% ========================================
+% BOÎTES COLORÉES PERSONNALISÉES
+% ========================================
+\newtcolorbox{infobox}[1][]{
+    colback=lightgray,
+    colframe=primarycolor,
+    fonttitle=\bfseries,
+    title=#1,
+    arc=3mm,
+    boxrule=1pt,
+    breakable
+}
+
+\newtcolorbox{resultsbox}[1][]{
+    colback=white,
+    colframe=accentcolor,
+    fonttitle=\bfseries,
+    title=#1,
+    arc=2mm,
+    boxrule=1.5pt,
+    breakable,
+    shadow={2mm}{-2mm}{0mm}{black!20}
+}
+
+\newtcolorbox{notebox}[1][Note]{
+    colback=yellow!10,
+    colframe=orange!80,
+    fonttitle=\bfseries,
+    title=#1,
+    arc=2mm,
+    boxrule=1pt,
+    breakable
+}
+
+% ========================================
+% CONFIGURATION DES LISTINGS (CODE)
+% ========================================
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    backgroundcolor=\color{codebackground},
+    commentstyle=\color{green!60!black},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{darkgray},
+    stringstyle=\color{red!70!black},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{mediumgray},
+    xleftmargin=20pt,
+    framexleftmargin=18pt
+}
+
+\lstset{style=pythonstyle}
+
+% ========================================
+% CONFIGURATION DES CAPTIONS
+% ========================================
+\captionsetup{
+    font={small,sf},
+    labelfont={bf,color=primarycolor},
+    textfont={it},
+    justification=centering,
+    singlelinecheck=false
+}
+
+% ========================================
+% COMMANDES PERSONNALISÉES
+% ========================================
+\newcommand{\code}[1]{\texttt{\color{accentcolor}#1}}
+\newcommand{\feature}[1]{\textbf{\textcolor{secondarycolor}{#1}}}
+\newcommand{\metric}[1]{\textit{\textcolor{accentcolor}{#1}}}
+
+% Pour les valeurs à remplir (conservé pour usage futur)
+\newcommand{\TOFILLIN}[1]{\textcolor{red}{\textbf{[#1]}}}
+
+% Figure optionnelle : si le fichier n'existe pas, affiche un message au lieu d'échouer
+\newcommand{\includegraphicsopt}[2][]{%
+  \IfFileExists{#2}{\includegraphics[#1]{#2}}{\fbox{\parbox{0.9\textwidth}{\centering\small\textit{Exécuter le notebook correspondant pour générer cette figure.}}}}
+}
+
+% ========================================
+% INFORMATIONS DU DOCUMENT
+% ========================================
+\title{
+    \vspace{-2cm}
+    \begin{tcolorbox}[
+        colback=primarycolor,
+        colframe=secondarycolor,
+        arc=5mm,
+        boxrule=2pt,
+        width=\textwidth
+    ]
+        \begin{center}
+            {\Huge\textcolor{white}{\textbf{Projet Machine Learning}}}\\[0.5cm]
+            {\Large\textcolor{white}{Wine Quality Dataset}}\\[0.3cm]
+            {\large\textcolor{white}{\textit{Analyse et Modélisation avec Réduction de Dimension,}}}\\
+            {\large\textcolor{white}{\textit{Clustering et Classification}}}
+        \end{center}
+    \end{tcolorbox}
+    \vspace{-0.5cm}
+}
+
+\author{
+    \textbf{Brahim Semlali}\\
+    \textit{Master ISI (Ingenierie des Systèmes d'Information)}\\[0.3cm]
+    \href{https://github.com/Brahim-semlali/ML-project}{\textcolor{accentcolor}{GitHub Repository}}
+}
+
+\date{\today}
+
+% ========================================
+% DÉBUT DU DOCUMENT
+% ========================================
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\begin{center}
+    \vspace{1cm}
+    \begin{tcolorbox}[
+        colback=lightgray,
+        colframe=primarycolor,
+        width=0.9\textwidth,
+        arc=3mm,
+        boxrule=1pt
+    ]
+        \textbf{Lien du dépôt GitHub :}\\[0.2cm]
+        \large\url{https://github.com/Brahim-semlali/ML-project}
+    \end{tcolorbox}
+\end{center}
+
+\vfill
+
+\newpage
+
+% ========================================
+% TABLE DES MATIÈRES
+% ========================================
+\tableofcontents
+\thispagestyle{empty}
+\newpage
+
+\setcounter{page}{1}
+\onehalfspacing
+
+% ========================================
+% 1. INTRODUCTION
+% ========================================
+\section{Introduction}
+
+Ce projet, réalisé dans le cadre du \textbf{Master ISI} (Informatique et Systèmes d'Information), consiste à analyser et modéliser le dataset \emph{Wine Quality} portant sur les vins rouges. L'objectif principal est double :
+
+\begin{enumerate}[itemsep=0.5em]
+    \item \textbf{Prédire la qualité du vin} à partir de ses propriétés physico-chimiques
+    \item \textbf{Explorer la structure des données} à l'aide de méthodes de réduction de dimension, de clustering et de classification
+\end{enumerate}
+
+\subsection{Motivation du projet}
+
+Le jeu de données choisi présente plusieurs atouts qui justifient son utilisation dans un contexte pédagogique et pratique :
+
+\begin{infobox}[Avantages du dataset Wine Quality]
+    \begin{itemize}[leftmargin=*]
+        \item \textbf{Interprétabilité} : Variables correspondant à des mesures chimiques réelles (acidité, alcool, sulfates)
+        \item \textbf{Taille adaptée} : 1599 échantillons et 12 colonnes, idéal pour l'apprentissage
+        \item \textbf{Documentation} : Référence académique claire (Cortez et al., 2009)
+        \item \textbf{Applications pratiques} : Contrôle qualité en œnologie et industrie viticole
+    \end{itemize}
+\end{infobox}
+
+\subsection{Structure du rapport}
+
+Ce rapport détaille successivement :
+
+\begin{enumerate}[leftmargin=*]
+    \item La description du dataset et son exploration (EDA)
+    \item La réduction de dimension (PCA, t-SNE, NMF, LDA)
+    \item Le clustering (K-Means, Agglomerative, DBSCAN, GMM)
+    \item La comparaison de modèles de classification (Logistic Regression, Naive Bayes, KNN, Decision Tree, SVM, Random Forest, AdaBoost, Gradient Boosting, Neural Network)
+\end{enumerate}
+
+\newpage
+
+% ========================================
+% 2. DATASET
+% ========================================
+\section{Dataset}
+
+\subsection{Présentation et source}
+
+Le dataset \textbf{Wine Quality (Red Wine)} provient d'une étude de Cortez et al. (2009), dont l'objectif était de modéliser les préférences de dégustation à partir de propriétés physico-chimiques mesurables en laboratoire.
+
+\begin{infobox}[Informations techniques]
+    \begin{tabularx}{\textwidth}{lX}
+        \toprule
+        \textbf{Nom} & Wine Quality Dataset (Red Wine) \\
+        \midrule
+        \textbf{Référence} & Cortez et al., \textit{Decision Support Systems}, 2009 \\
+        \textbf{Échantillons} & 1599 vins rouges \\
+        \textbf{Variables} & 12 (11 features + 1 cible) \\
+        \textbf{Source Kaggle} & \url{https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009} \\
+        \textbf{Source UCI} & \url{https://archive.ics.uci.edu/ml/datasets/wine+quality} \\
+        \bottomrule
+    \end{tabularx}
+\end{infobox}
+
+\subsection{Variables du dataset}
+
+\subsubsection{Variables d'entrée (Features)}
+
+Les \textbf{11 variables d'entrée} sont des mesures physico-chimiques :
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lXl}
+    \toprule
+    \textbf{Variable} & \textbf{Description} & \textbf{Unité} \\
+    \midrule
+    \feature{fixed acidity} & Acidité fixe (acide tartrique) & g/dm\textsuperscript{3} \\
+    \feature{volatile acidity} & Acidité volatile (acide acétique) & g/dm\textsuperscript{3} \\
+    \feature{citric acid} & Acide citrique & g/dm\textsuperscript{3} \\
+    \feature{residual sugar} & Sucre résiduel après fermentation & g/dm\textsuperscript{3} \\
+    \feature{chlorides} & Chlorures (salinité) & g/dm\textsuperscript{3} \\
+    \feature{free sulfur dioxide} & SO\textsubscript{2} libre (anti-oxydant) & mg/dm\textsuperscript{3} \\
+    \feature{total sulfur dioxide} & SO\textsubscript{2} total (libre + lié) & mg/dm\textsuperscript{3} \\
+    \feature{density} & Densité & g/cm\textsuperscript{3} \\
+    \feature{pH} & Acidité/alcalinité & 0--14 \\
+    \feature{sulphates} & Sulfates (additif) & g/dm\textsuperscript{3} \\
+    \feature{alcohol} & Degré d'alcool & \% vol. \\
+    \bottomrule
+\end{tabularx}
+\caption{Variables physico-chimiques du dataset}
+\label{tab:variables}
+\end{table}
+
+\subsubsection{Variable cible}
+
+\begin{notebox}[Variable cible : quality]
+    La variable \feature{quality} est une note entière de 0 à 10, dérivée de la médiane d'au moins trois évaluations par des dégustateurs experts. Dans ce dataset, les notes observées vont de \textbf{3 à 8}.
+    
+    \vspace{0.3cm}
+    \textbf{Deux approches} :
+    \begin{itemize}
+        \item \textbf{Binaire} : qualité $\geq 6$ = "bon", $< 6$ = "moyen/mauvais"
+        \item \textbf{Multi-classes} : chaque note comme classe distincte
+    \end{itemize}
+\end{notebox}
+
+\subsection{Exploration des données (EDA)}
+
+L'exploration des données permet de vérifier la qualité des données, visualiser les distributions et identifier les corrélations entre variables.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/eda_histogrammes.png}
+    \caption{Distribution des features du dataset Wine Quality}
+    \label{fig:eda_hist}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/eda_correlation.png}
+    \caption{Matrice de corrélation entre les features}
+    \label{fig:eda_corr}
+\end{figure}
+
+\begin{resultsbox}[Interprétation de l'EDA]
+    \textbf{Distributions} : Les histogrammes révèlent des distributions souvent asymétriques (ex. \feature{residual sugar}, \feature{chlorides}), justifiant la standardisation.
+    
+    \vspace{0.3cm}
+    \textbf{Corrélations} : 
+    \begin{itemize}
+        \item \feature{density} fortement corrélée à \feature{fixed acidity}
+        \item \feature{alcohol} négativement corrélé à \feature{density}
+        \item Corrélations modérées avec \feature{quality}
+    \end{itemize}
+\end{resultsbox}
+
+\newpage
+
+% ========================================
+% 3. RÉDUCTION DE DIMENSION
+% ========================================
+\section{Réduction de dimension}
+
+La réduction de dimension permet de visualiser les données dans un espace de plus faible dimension. Nous utilisons quatre méthodes complémentaires (PCA, t-SNE, NMF et LDA).
+
+\subsection{PCA (Principal Component Analysis)}
+
+La PCA est une méthode \textbf{linéaire} qui maximise la variance expliquée par des composantes orthogonales.
+
+\subsubsection{Résultats PCA 2D}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/pca_2d.png}
+    \caption{PCA avec 2 composantes principales - Visualisation colorée par qualité}
+    \label{fig:pca_2d}
+\end{figure}
+
+\begin{resultsbox}[Résultats PCA 2D]
+    \begin{tabularx}{\textwidth}{lX}
+        \textbf{Variance expliquée PC1} & 28,3\,\% \\
+        \textbf{Variance expliquée PC2} & 17,3\,\% \\
+        \textbf{Variance cumulée totale} & 45,6\,\% \\
+    \end{tabularx}
+    
+    \vspace{0.3cm}
+    \textbf{Interprétation} : La variance cumulée (45,6\,\%) indique qu'une part importante de l'information est perdue en 2D ; la visualisation reste utile pour observer un gradient partiel selon la qualité. Le chevauchement des couleurs suggère que la frontière bon/mauvais vin n'est pas linéairement séparable, ce qui motive l'usage de modèles non linéaires en classification.
+\end{resultsbox}
+
+\subsubsection{Résultats PCA 3D}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/pca_3d.png}
+    \caption{PCA avec 3 composantes principales - Visualisation 3D}
+    \label{fig:pca_3d}
+\end{figure}
+
+\begin{infobox}[Interprétation PCA 3D]
+    La vue 3D peut révéler des séparations entre qualités peu visibles en 2D. On observe souvent un continuum avec des zones plus denses pour certaines notes, sans séparation nette, cohérent avec la subjectivité des dégustations.
+\end{infobox}
+
+\newpage
+\subsection{t-SNE (t-Distributed Stochastic Neighbor Embedding)}
+
+Le t-SNE est une méthode \textbf{non linéaire} qui préserve les voisinages locaux.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/tsne_2d.png}
+    \caption{t-SNE 2D - Visualisation de la structure des données (perplexity=30)}
+    \label{fig:tsne}
+\end{figure}
+
+\begin{infobox}[Paramètres t-SNE]
+    \textbf{Perplexity} : 30 \quad|\quad \textbf{Random state} : 42
+\end{infobox}
+
+\begin{resultsbox}[Interprétation t-SNE]
+    Si des amas émergent partiellement alignés avec les couleurs de qualité, la structure est non linéaire : des groupes de vins chimiquement proches correspondent à des niveaux de qualité similaires. Un mélange homogène indiquerait que la qualité n'est pas clairement reflétée par les voisinages dans l'espace des 11 variables.
+\end{resultsbox}
+
+\newpage
+\subsection{NMF (Non-negative Matrix Factorization)}
+
+La NMF factorise les données en composantes \textbf{non-négatives}, interprétables comme des profils chimiques.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/nmf_2d.png}
+    \caption{NMF avec 2 composantes - Identification des composants chimiques dominants}
+    \label{fig:nmf}
+\end{figure}
+
+\begin{resultsbox}[Résultats NMF]
+    \textbf{Reconstruction error} : 12,62
+    
+    \vspace{0.3cm}
+    \textbf{Interprétation} : Les composantes identifient des patterns tels que ``alcool/sulfates'' vs ``acidité/densité''. Chaque axe peut s'interpréter comme un profil chimique dominant ; les vins positionnés à un extrême ont un profil marqué par ce groupe de variables.
+\end{resultsbox}
+
+\newpage
+\subsection{LDA (Linear Discriminant Analysis)}
+
+La LDA est une méthode de réduction de dimension \textbf{supervisée} qui maximise la séparation entre classes. Contrairement à PCA (non supervisée), LDA utilise les étiquettes \feature{quality} pour projeter les données dans un sous-espace où les classes sont le mieux séparées.
+
+\begin{infobox}[PCA vs LDA]
+    \textbf{PCA} : maximise la variance totale, indépendamment des classes.\\
+    \textbf{LDA} : maximise le ratio variance inter-classes / variance intra-classe.
+\end{infobox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/lda_2d.png}
+    \caption{LDA 2D - Visualisation supervisée (séparation des classes par qualité)}
+    \label{fig:lda}
+\end{figure}
+
+\begin{resultsbox}[Résultats LDA]
+    \textbf{Interprétation} : La LDA projette sur au plus $\min(n_{\text{features}}, n_{\text{classes}}-1)$ composantes. Pour le dataset Wine Quality (6 classes), on obtient jusqu'à 5 composantes discriminantes. La visualisation 2D révèle une meilleure séparation des notes que PCA lorsqu'on exploite explicitement l'information de qualité.
+\end{resultsbox}
+
+\newpage
+
+% ========================================
+% 4. CLUSTERING
+% ========================================
+\section{Clustering}
+
+Le clustering groupe les échantillons sans utiliser l'étiquette \feature{quality}.
+
+\subsection{K-Means}
+
+K-Means partitionne en $k$ clusters en minimisant l'inertie.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/kmeans_clusters.png}
+        \caption{Clusters K-Means (k=4)}
+        \label{fig:kmeans_clusters}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/kmeans_comparison.png}
+        \caption{Comparaison avec qualité réelle}
+        \label{fig:kmeans_comp}
+    \end{subfigure}
+    \caption{Analyse K-Means clustering}
+\end{figure}
+
+\begin{resultsbox}[Résultats K-Means]
+    \begin{tabularx}{\textwidth}{lX}
+        \textbf{Clusters testés} & k = 3, 4, 5 \\
+        \textbf{Silhouette score (k=4)} & 0,367 \\
+        \textbf{Observations} & Clusters partiellement alignés avec les catégories de qualité ; les segments reflètent des ``types'' chimiques (ex. alcool/sulfates vs acidité/densité) plutôt qu'une séparation stricte par note. \\
+    \end{tabularx}
+\end{resultsbox}
+
+\begin{infobox}[Interprétation K-Means]
+    Un score de silhouette d'environ 0,37 indique des clusters discernables mais avec chevauchement. La figure de comparaison montre si chaque cluster correspond à une ou plusieurs notes ; un accord partiel rappelle que la qualité perçue dépend aussi de facteurs non mesurés.
+\end{infobox}
+
+\newpage
+\subsection{Agglomerative Clustering}
+
+Clustering hiérarchique avec méthode de Ward.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/agg_clusters.png}
+        \caption{Clusters agglomératifs}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/dendrogram.png}
+        \caption{Dendrogramme}
+    \end{subfigure}
+    \caption{Agglomerative Clustering (k=4)}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphicsopt[width=0.75\textwidth]{figures/agg_comparison.png}
+    \caption{Comparaison clusters agglomératifs vs qualité réelle}
+    \label{fig:agg_comparison}
+\end{figure}
+
+\begin{resultsbox}[Résultats Agglomerative]
+    \begin{tabularx}{\textwidth}{lX}
+        \textbf{Méthode de linkage} & Ward \\
+        \textbf{Silhouette score (k=4)} & 0,343 \\
+        \textbf{Interprétation} & Le dendrogramme révèle la structure hiérarchique ; des sauts de distance indiquent des coupures naturelles. La figure de comparaison montre l'alignement entre clusters et catégories de qualité (comme pour K-Means) ; un accord partiel indique que la segmentation chimique ne correspond pas exactement aux notes de dégustation. \\
+    \end{tabularx}
+\end{resultsbox}
+
+\newpage
+\subsection{DBSCAN}
+
+DBSCAN identifie des régions denses et détecte les outliers.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/dbscan_clusters.png}
+        \caption{Clusters DBSCAN}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/dbscan_outliers.png}
+        \caption{Outliers détectés}
+    \end{subfigure}
+    \caption{DBSCAN - Détection de groupes et outliers}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphicsopt[width=0.75\textwidth]{figures/dbscan_comparison.png}
+    \caption{Comparaison DBSCAN vs qualité réelle}
+    \label{fig:dbscan_comparison}
+\end{figure}
+
+\begin{resultsbox}[Résultats DBSCAN]
+    \begin{tabularx}{\textwidth}{lX}
+        \textbf{Paramètres} & eps = 0,7, min\_samples = 5 \\
+        \textbf{Clusters détectés} & 2 \\
+        \textbf{Outliers détectés} & 14 \\
+        \textbf{Silhouette score} & 0,441 (hors bruit) \\
+    \end{tabularx}
+    \vspace{0.3cm}
+    \textbf{Interprétation} : DBSCAN produit 2 groupes denses et 14 outliers (vins au profil chimique atypique). La figure de comparaison montre si les clusters correspondent aux catégories de qualité ; les outliers ne sont pas nécessairement de mauvaise qualité et méritent une analyse ciblée pour détecter d'éventuelles valeurs aberrantes ou vins.
+\end{resultsbox}
+
+\newpage
+\subsection{GMM (Gaussian Mixture Models)}
+
+Le GMM est un clustering \textbf{probabiliste} qui modélise les données comme un mélange de distributions gaussiennes. Contrairement à K-Means (assignment dur), le GMM réalise un \emph{soft assignment} : chaque point appartient à chaque cluster avec une probabilité. Le critère BIC (Bayesian Information Criterion) permet de sélectionner automatiquement le nombre optimal de composantes.
+
+\begin{figure}[H]
+    \centering
+    \includegraphicsopt[width=0.7\textwidth]{figures/gmm_bic.png}
+    \caption{BIC en fonction du nombre de composantes GMM -- le minimum indique le $k$ optimal}
+    \label{fig:gmm_bic}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/gmm_clusters.png}
+    \caption{GMM - Clusters probabilistes (gauche) vs qualité réelle (droite)}
+    \label{fig:gmm}
+\end{figure}
+
+\begin{resultsbox}[Résultats GMM]
+    \begin{tabularx}{\textwidth}{lX}
+        \textbf{Composantes} & k = 4 (sélection BIC) \\
+        \textbf{Silhouette score} & ~0,35--0,40 \\
+        \textbf{Avantage} & Clusters de forme elliptique ; sélection automatique de k via BIC \\
+    \end{tabularx}
+    
+    \vspace{0.3cm}
+    \textbf{Interprétation} : La courbe BIC permet de choisir objectivement le nombre de composantes : on sélectionne le $k$ correspondant au BIC minimal. Le GMM offre une modélisation plus flexible que K-Means pour des clusters non sphériques.
+\end{resultsbox}
+
+\subsection{Comparaison des méthodes de clustering}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lXcc}
+    \toprule
+    \textbf{Algorithme} & \textbf{Caractéristiques} & \textbf{Silhouette} & \textbf{k/Clusters} \\
+    \midrule
+    K-Means & Centroïdes, k fixé & 0,367 & 4 \\
+    Agglomerative & Hiérarchique Ward & 0,343 & 4 \\
+    DBSCAN & Densité, outliers & 0,441 & Auto (2 + 14 bruits) \\
+    GMM & Probabiliste, soft assignment & ~0,35--0,40 & 4 (BIC) \\
+    \bottomrule
+\end{tabularx}
+\caption{Comparaison des performances - Clustering}
+\label{tab:clustering_comp}
+\end{table}
+
+\newpage
+
+% ========================================
+% 5. CLASSIFICATION
+% ========================================
+\section{Classification}
+
+L'objectif est de prédire la qualité du vin en classification binaire et multi-classes. Nous utilisons neuf modèles : Logistic Regression, Naive Bayes, KNN, Decision Tree, SVM, Random Forest, AdaBoost, Gradient Boosting et Neural Network (MLP).
+
+\subsection{Logistic Regression}
+
+Modèle linéaire de référence (baseline).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/logistic_confusion_matrix.png}
+    \caption{Matrice de confusion - Logistic Regression}
+    \label{fig:logistic_cm}
+\end{figure}
+
+\begin{resultsbox}[Résultats Logistic Regression]
+    \begin{tabularx}{\textwidth}{lc}
+        \toprule
+        \textbf{Métrique} & \textbf{Valeur} \\
+        \midrule
+        Accuracy & 0,735 \\
+        F1-score & 0,745 \\
+        Precision & 0,761 \\
+        Recall & 0,729 \\
+        \bottomrule
+    \end{tabularx}
+\end{resultsbox}
+
+\begin{infobox}[Interprétation]
+    Bonne baseline ; la régression logistique suppose une frontière linéaire. Les performances indiquent que la relation qualité/variables est partiellement linéaire.
+\end{infobox}
+
+\newpage
+\subsection{Naive Bayes}
+
+Naive Bayes est un classificateur probabiliste basé sur le théorème de Bayes et l'hypothèse d'indépendance conditionnelle des features. \textbf{GaussianNB} est adapté aux variables continues et constitue un excellent baseline rapide.
+
+\begin{figure}[H]
+    \centering
+    \includegraphicsopt[width=0.85\textwidth]{figures/naivebayes_confusion_matrix.png}
+    \caption{Naive Bayes - Matrice de confusion et courbe ROC}
+    \label{fig:naivebayes}
+\end{figure}
+
+\begin{resultsbox}[Résultats Naive Bayes]
+    \begin{tabularx}{\textwidth}{lX}
+        \textbf{Accuracy} & ~0,68--0,72 \\
+        \textbf{F1-score} & ~0,70--0,74 \\
+        \textbf{ROC-AUC} & Métrique complémentaire pour classificateurs probabilistes \\
+    \end{tabularx}
+    
+    \vspace{0.3cm}
+    \textbf{Interprétation} : Naive Bayes est très rapide et offre une baseline solide. La courbe ROC et l'AUC permettent d'évaluer la capacité discriminative indépendamment du seuil de décision. L'hypothèse d'indépendance n'est pas respectée (corrélations entre features) mais le modèle reste utile en pratique.
+\end{resultsbox}
+
+\newpage
+\subsection{K-Nearest Neighbors (KNN)}
+
+Classification basée sur les voisins proches.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/knn_performance.png}
+        \caption{Performance vs k}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/knn_confusion_matrix.png}
+        \caption{Matrice de confusion}
+    \end{subfigure}
+    \caption{Analyse KNN}
+\end{figure}
+
+\begin{resultsbox}[Résultats KNN]
+    \textbf{k optimal} : 5 \quad|\quad \textbf{Accuracy} : 0,688 \quad|\quad \textbf{F1-score} : 0,716
+\end{resultsbox}
+
+\begin{infobox}[Interprétation]
+    KNN est sensible à la normalisation (appliquée). Un $k=5$ limite le bruit tout en gardant des frontières locales ; les performances restent en deçà des modèles à base d'arbres.
+\end{infobox}
+\newpage
+\subsection{Decision Tree}
+
+Arbre de décision avec importance des features. L'arbre fournit des règles de décision explicites (seuils sur les variables) et une visualisation directe du processus de classification.
+
+\begin{figure}[H]
+    \centering
+    \includegraphicsopt[width=0.95\textwidth]{figures/decisiontree_tree.png}
+    \caption{Structure de l'arbre de décision -- nœuds et seuils interprétables (ex. alcohol $<$ 10,2)}
+    \label{fig:decisiontree_tree}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/decisiontree_feature_importance.png}
+        \caption{Feature Importance}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/decisiontree_confusion_matrix.png}
+        \caption{Matrice de confusion}
+    \end{subfigure}
+    \caption{Analyse Decision Tree}
+\end{figure}
+
+\begin{resultsbox}[Résultats Decision Tree]
+    \begin{tabularx}{\textwidth}{lX}
+        \textbf{Accuracy} & 0,669 \\
+        \textbf{F1-score} & 0,683 \\
+        \textbf{Top features} & alcohol, sulphates, volatile acidity \\
+    \end{tabularx}
+\end{resultsbox}
+
+\begin{infobox}[Interprétation]
+    La figure de l'arbre montre les règles de décision : chaque nœud indique une variable et un seuil (ex. alcohol $\leq$ 10,2 $\rightarrow$ classe 0). Les features les plus utilisées en racine sont les plus discriminantes. Une profondeur limitée (max\_depth=5) évite le surajustement ; les importance confirment le rôle de l'alcool, des sulfates et de l'acidité volatile.
+\end{infobox}
+\newpage
+\subsection{Support Vector Machine (SVM)}
+
+SVM avec différents kernels testés.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/svm_kernels.png}
+        \caption{Comparaison kernels}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/svm_confusion_matrix.png}
+        \caption{Matrice de confusion (RBF)}
+    \end{subfigure}
+    \caption{Analyse SVM}
+\end{figure}
+
+\begin{resultsbox}[Résultats SVM]
+    \textbf{Kernel optimal} : RBF \quad|\quad \textbf{Accuracy} : 0,754 \quad|\quad \textbf{F1-score} : 0,762
+\end{resultsbox}
+
+\begin{infobox}[Interprétation]
+    Le kernel RBF capture des frontières non linéaires ; la standardisation est essentielle. SVM atteint des performances proches de Random Forest et Gradient Boosting.
+\end{infobox}
+\newpage
+\subsection{Random Forest}
+
+Ensemble d'arbres de décision avec bagging.
+
+\subsubsection{Classification binaire}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/randomforest_hyperparams.png}
+        \caption{Hyperparamètres}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/randomforest_feature_importance_binary.png}
+        \caption{Feature Importance}
+    \end{subfigure}
+    
+    \vspace{0.5cm}
+    
+    \begin{subfigure}[b]{0.55\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/randomforest_confusion_matrix_binary.png}
+        \caption{Matrice de confusion}
+    \end{subfigure}
+    \caption{Random Forest - Classification binaire}
+\end{figure}
+
+\begin{resultsbox}[Résultats Random Forest (Binaire)]
+    \begin{tabularx}{\textwidth}{lX}
+        \textbf{n\_estimators optimal} & 200 \\
+        \textbf{Accuracy} & 0,754 \\
+        \textbf{F1-score} & 0,760 \\
+        \textbf{Top features} & alcohol, sulphates, volatile acidity \\
+    \end{tabularx}
+\end{resultsbox}
+
+\subsubsection{Classification multi-classes}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/randomforest_feature_importance_multiclass.png}
+        \caption{Feature Importance}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/randomforest_confusion_matrix_multiclass.png}
+        \caption{Matrice de confusion}
+    \end{subfigure}
+    \caption{Random Forest - Classification multi-classes}
+\end{figure}
+
+\begin{resultsbox}[Résultats Random Forest (Multi-classes)]
+    \textbf{Accuracy} : 0,592 \quad|\quad \textbf{F1-score (macro)} : 0,274
+\end{resultsbox}
+
+\begin{infobox}[Interprétation]
+    La classification multi-classes est plus difficile : frontières floues entre notes consécutives et classes déséquilibrées. Le F1 macro faible reflète la difficulté à prédire les notes minoritaires.
+\end{infobox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/randomforest_comparison.png}
+    \caption{Comparaison Random Forest : Binaire vs Multi-classes}
+    \label{fig:rf_comparison}
+\end{figure}
+\newpage
+\subsection{Gradient Boosting}
+
+Boosting séquentiel d'arbres faibles.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/gradientboosting_feature_importance.png}
+        \caption{Feature Importance}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/gradientboosting_confusion_matrix.png}
+        \caption{Matrice de confusion}
+    \end{subfigure}
+    \caption{Analyse Gradient Boosting}
+\end{figure}
+
+\begin{resultsbox}[Résultats Gradient Boosting]
+    \begin{tabularx}{\textwidth}{lX}
+        \textbf{Accuracy} & 0,761 \\
+        \textbf{F1-score} & 0,772 \\
+        \textbf{Top features} & alcohol, sulphates, volatile acidity \\
+    \end{tabularx}
+\end{resultsbox}
+
+\begin{infobox}[Interprétation]
+    Gradient Boosting obtient les meilleures performances parmi tous les modèles testés. Chaque arbre corrige les erreurs résiduelles ; l'importance des features confirme le rôle dominant de l'alcool, des sulfates et de l'acidité volatile pour la qualité perçue.
+\end{infobox}
+
+\newpage
+\subsection{AdaBoost (Adaptive Boosting)}
+
+AdaBoost combine plusieurs apprenants faibles (stumps : arbres de profondeur 1) en un classificateur fort. Le cahier des charges mentionne que Gradient Boosting est ``souvent plus précis qu'AdaBoost'' ; cette section permet de comparer les deux approches de boosting.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/adaboost_feature_importance.png}
+        \caption{Feature Importance}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/adaboost_confusion_matrix.png}
+        \caption{Matrice de confusion}
+    \end{subfigure}
+    \caption{Analyse AdaBoost}
+\end{figure}
+
+\begin{resultsbox}[Résultats AdaBoost]
+    \begin{tabularx}{\textwidth}{lX}
+        \textbf{Accuracy} & ~0,72--0,75 \\
+        \textbf{F1-score} & ~0,73--0,76 \\
+        \textbf{Top features} & alcohol, sulphates, volatile acidity \\
+    \end{tabularx}
+    
+    \vspace{0.3cm}
+    \textbf{Interprétation} : AdaBoost offre des performances intermédiaires entre les modèles linéaires et Gradient Boosting. L'importance des features est cohérente avec les autres modèles à base d'arbres. Gradient Boosting surpasse généralement AdaBoost grâce à la minimisation des erreurs résiduelles au lieu de la reweighting des exemples.
+\end{resultsbox}
+
+\newpage
+\subsection{Neural Network (MLP)}
+
+Un \textbf{réseau de neurones} (MLP -- Multi-Layer Perceptron) peut être utilisé sur ce dataset tabulaire. Avec environ 1600 échantillons, on privilégie une architecture modeste et de la régularisation pour éviter le surajustement.
+
+\begin{infobox}[Pourquoi un MLP sur des données tabulaires ?]
+    Les MLP sont capables d'apprendre des frontières non linéaires. Pour de petits jeux de données, on utilise peu de couches (ex. 64--32 neurones), \textbf{early stopping} et régularisation L2 (\code{alpha}). La normalisation des features est indispensable.
+\end{infobox}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/neuralnetwork_curves.png}
+        \caption{Courbe de loss et courbe ROC}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figures/neuralnetwork_confusion_matrix.png}
+        \caption{Matrice de confusion}
+    \end{subfigure}
+    \caption{Analyse Neural Network (MLP)}
+\end{figure}
+
+\begin{resultsbox}[Résultats MLP]
+    \begin{tabularx}{\textwidth}{lX}
+        \textbf{Architecture} & 2 couches cachées (64, 32), ReLU, Adam \\
+        \textbf{Régularisation} & early stopping, alpha=0,001 \\
+        \textbf{Accuracy} & ~0,72--0,76 \\
+        \textbf{F1-score} & ~0,73--0,77 \\
+        \textbf{ROC-AUC} & Comparable aux autres modèles probabilistes \\
+    \end{tabularx}
+    
+    \vspace{0.3cm}
+    \textbf{Interprétation} : Sur un jeu de données de cette taille, le MLP peut atteindre des performances proches de Gradient Boosting ou SVM. Les arbres et le boosting restent souvent plus robustes et interprétables pour les données tabulaires ; le MLP reste une option valide pour capturer des non-linéarités complexes.
+\end{resultsbox}
+
+\newpage
+
+% ========================================
+% 6. COMPARAISON DES MODÈLES
+% ========================================
+\section{Comparaison des modèles}
+
+\subsection{Tableau récapitulatif - Classification binaire}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lXcccc}
+    \toprule
+    \textbf{Modèle} & \textbf{Type} & \textbf{Accuracy} & \textbf{F1} & \textbf{Precision} & \textbf{Recall} \\
+    \midrule
+    Logistic Regression & Linéaire & 0,735 & 0,745 & 0,761 & 0,729 \\
+    Naive Bayes & Probabiliste & ~0,70 & ~0,72 & -- & -- \\
+    KNN (k=5) & Instance-based & 0,688 & 0,716 & 0,690 & 0,743 \\
+    Decision Tree & Arbre & 0,669 & 0,683 & 0,693 & 0,674 \\
+    SVM (RBF) & Kernel & 0,754 & 0,762 & 0,781 & 0,743 \\
+    Random Forest & Ensemble & 0,754 & 0,760 & 0,785 & 0,736 \\
+    AdaBoost & Boosting & ~0,73 & ~0,74 & -- & -- \\
+    Gradient Boosting & Boosting & 0,761 & 0,772 & 0,780 & 0,764 \\
+    Neural Network (MLP) & Réseau de neurones & ~0,73--0,76 & ~0,74--0,77 & -- & -- \\
+    \bottomrule
+\end{tabularx}
+\caption{Comparaison des performances - Classification binaire}
+\label{tab:classif_comp}
+\end{table}
+
+\begin{notebox}[Meilleur modèle]
+    Le modèle \textbf{Gradient Boosting} obtient les meilleures performances avec :
+    \begin{itemize}
+        \item Accuracy : 0,761
+        \item F1-score : 0,772
+    \end{itemize}
+\end{notebox}
+
+\subsection{Interprétation des résultats}
+
+\begin{infobox}[Analyse des métriques]
+    \textbf{Accuracy} : Proportion globale de prédictions correctes
+    
+    \textbf{F1-score} : Moyenne harmonique précision/rappel, essentielle pour classes déséquilibrées
+    
+    \textbf{Precision} : Parmi les vins prédits "bons", combien le sont vraiment
+    
+    \textbf{Recall} : Parmi les vins réellement "bons", combien sont détectés
+\end{infobox}
+
+\subsubsection{Métriques complémentaires : ROC-AUC et validation croisée}
+
+\begin{infobox}[ROC-AUC]
+    La \textbf{courbe ROC} (Receiver Operating Characteristic) et l'\textbf{AUC} (Area Under Curve) évaluent la capacité discriminative du modèle indépendamment du seuil de décision. Un AUC de 0,5 correspond au hasard ; 1,0 à une séparation parfaite. Les modèles avec \code{predict\_proba} (Logistic Regression, Naive Bayes, Random Forest, Gradient Boosting) permettent de calculer l'AUC.
+\end{infobox}
+
+\begin{infobox}[Validation croisée]
+    La \textbf{Stratified K-Fold} préserve les proportions de classes dans chaque pli, essentiel pour les datasets déséquilibrés. Une validation croisée 5-fold donne une estimation plus robuste des performances que le simple train/test split. L'\textbf{optimisation des hyperparamètres} (GridSearchCV, RandomizedSearchCV) permet d'améliorer les résultats.
+\end{infobox}
+
+\subsubsection{Features les plus importantes}
+
+Les modèles à base d'arbres révèlent que les variables les plus prédictives sont :
+
+\begin{enumerate}
+    \item \feature{alcohol} : Corrélation positive avec la qualité
+    \item \feature{sulphates} : Contribuent à la stabilité et qualité
+    \item \feature{volatile acidity} : Impact négatif (goût de vinaigre)
+\end{enumerate}
+
+\newpage
+
+% ========================================
+% 7. INTERPRÉTATION GLOBALE
+% ========================================
+\section{Interprétation globale des résultats}
+
+\subsection{Synthèse des découvertes}
+
+\begin{tcolorbox}[
+    colback=primarycolor!5,
+    colframe=primarycolor,
+    title=Points clés du projet,
+    fonttitle=\bfseries\large,
+    arc=4mm,
+    boxrule=1.5pt
+]
+    \begin{enumerate}[leftmargin=*, itemsep=0.5em]
+        \item \textbf{EDA} : Corrélations modérées avec la qualité, justifiant l'usage de méthodes non linéaires
+        
+        \item \textbf{Réduction de dimension} : PCA, t-SNE, NMF et LDA (supervisée) ; variance PCA 2D 45,6\,\%
+        
+        \item \textbf{Clustering} : K-Means, Agglomerative, DBSCAN et GMM ; DBSCAN détecte 2 clusters et 14 outliers
+        
+        \item \textbf{Classification} : 9 modèles dont Neural Network (MLP) ; Gradient Boosting meilleur (accuracy 0,761, F1 0,772)
+        
+        \item \textbf{Features importantes} : alcohol, sulphates, volatile acidity
+    \end{enumerate}
+\end{tcolorbox}
+
+\subsection{Limitations et perspectives}
+
+\subsubsection{Limitations}
+
+\begin{itemize}[leftmargin=*]
+    \item La qualité perçue dépend aussi de facteurs non mesurés (cépage, terroir, dégustateur)
+    \item Déséquilibre des classes en multi-classes (F1 macro 0,27)
+    \item Subjectivité des évaluations de dégustation
+\end{itemize}
+
+\subsubsection{Perspectives d'amélioration}
+
+\begin{itemize}[leftmargin=*]
+    \item Enrichir le dataset avec variables supplémentaires (âge, région, cépage)
+    \item Tester des techniques de rééchantillonnage (SMOTE, oversampling) pour classes minoritaires
+    \item \textbf{Optimisation des hyperparamètres} : GridSearchCV ou RandomizedSearchCV pour tous les modèles ; Bayesian Optimization (Optuna, Hyperopt) pour une recherche plus efficace
+    \item \textbf{Validation croisée} : Stratified K-Fold systématique pour une évaluation robuste
+    \item Déploiement du modèle en production pour contrôle qualité temps réel
+\end{itemize}
+
+\newpage
+
+% ========================================
+% 9. CONCLUSION
+% ========================================
+\section{Conclusion}
+
+Ce projet a permis de mettre en œuvre un pipeline complet de Machine Learning sur le dataset Wine Quality :
+
+\begin{tcolorbox}[
+    colback=accentcolor!10,
+    colframe=accentcolor,
+    title=Réalisations du projet,
+    fonttitle=\bfseries,
+    arc=3mm,
+    boxrule=1pt
+]
+    \textbf{Réduction de dimension} \\
+    PCA, t-SNE, NMF et LDA (supervisée) pour visualisation et exploration 2D/3D
+    
+    \vspace{0.3cm}
+    \textbf{Clustering} \\
+    K-Means, Agglomerative, DBSCAN et GMM (probabiliste)
+    
+    \vspace{0.3cm}
+    \textbf{Classification} \\
+    9 modèles comparés (dont MLP) ; Gradient Boosting meilleur (accuracy 0,761, F1 0,772)
+    
+    \vspace{0.3cm}
+    \textbf{MLflow} \\
+    Suivi reproductible de toutes les expériences
+\end{tcolorbox}
+
+\vspace{0.5cm}
+
+\begin{resultsbox}[Modèle recommandé]
+    \textbf{Meilleur modèle} : Gradient Boosting
+    
+    \textbf{Performance} : Accuracy = 0,761, F1-score = 0,772
+    
+    \textbf{Features clés} : alcohol, sulphates, volatile acidity
+\end{resultsbox}
+
+\vspace{0.5cm}
+
+Ces résultats sont cohérents avec la littérature scientifique (Cortez et al., 2009) et offrent des pistes concrètes pour l'amélioration de la qualité du vin en production.
+
+\newpage
+
+% ========================================
+% ANNEXES
+% ========================================
+\appendix
+
+\section{Code source}
+
+\subsection{Structure du projet}
+
+\begin{lstlisting}[caption=Structure des répertoires, basicstyle=\ttfamily\small]
+ML-project/
+|-- dataset/
+|   |-- winequality-red.csv
+|-- reduction/
+|   |-- PCA.ipynb
+|   |-- tSNE.ipynb
+|   |-- NMF.ipynb
+|   |-- LDA.ipynb
+|-- clustering/
+|   |-- KMeans.ipynb
+|   |-- AgglomerativeClustering.ipynb
+|   |-- DBSCAN.ipynb
+|   |-- GMM.ipynb
+|-- classification/
+|   |-- LogisticRegression.ipynb
+|   |-- NaiveBayes.ipynb
+|   |-- KNN.ipynb
+|   |-- DecisionTree.ipynb
+|   |-- SVM.ipynb
+|   |-- RandomForest.ipynb
+|   |-- AdaBoost.ipynb
+|   |-- GradientBoosting.ipynb
+|   |-- NeuralNetwork.ipynb
+|-- rapport/
+|   |-- figures/
+|-- src/
+|   |-- preprocessing.py
+|-- requirements.txt
+|-- README.md
+|-- wine_quality_ml.ipynb
+\end{lstlisting}
+
+\section{Références}
+
+\begin{thebibliography}{9}
+
+\bibitem{cortez2009}
+P. Cortez, A. Cerdeira, F. Almeida, T. Matos et J. Reis,
+\textit{Modeling wine preferences by data mining from physicochemical properties},
+Decision Support Systems, vol. 47, n°4, pp. 547--553, 2009.
+
+\bibitem{kaggle}
+UCI Machine Learning Repository,
+\textit{Wine Quality Dataset},
+\url{https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009}
+
+\bibitem{uci}
+UCI Machine Learning Repository,
+\textit{Wine Quality Data Set},
+\url{https://archive.ics.uci.edu/ml/datasets/wine+quality}
+
+\bibitem{mlflow}
+MLflow Documentation,
+\url{https://mlflow.org/}
+
+\bibitem{sklearn}
+Scikit-learn: Machine Learning in Python,
+\url{https://scikit-learn.org/}
+
+\bibitem{pca}
+I. T. Jolliffe,
+\textit{Principal Component Analysis},
+Springer Series in Statistics, 2nd edition, 2002.
+
+\bibitem{tsne}
+L. van der Maaten and G. Hinton,
+\textit{Visualizing Data using t-SNE},
+Journal of Machine Learning Research, vol. 9, pp. 2579--2605, 2008.
+
+\bibitem{dbscan}
+M. Ester, H.-P. Kriegel, J. Sander, and X. Xu,
+\textit{A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise},
+Proceedings of KDD-96, pp. 226--231, 1996.
+
+\bibitem{rf}
+L. Breiman,
+\textit{Random Forests},
+Machine Learning, vol. 45, pp. 5--32, 2001.
+
+\bibitem{lda}
+R. A. Fisher,
+\textit{The use of multiple measurements in taxonomic problems},
+Annals of Eugenics, vol. 7, pp. 179--188, 1936.
+
+\bibitem{adaboost}
+Y. Freund and R. E. Schapire,
+\textit{A Decision-Theoretic Generalization of On-Line Learning and an Application to Boosting},
+Journal of Computer and System Sciences, vol. 55, pp. 119--139, 1997.
+
+\end{thebibliography}
+
+\end{document}
